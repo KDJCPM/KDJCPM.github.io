@@ -1,10 +1,712 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>Hello World!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开大加成ProMax · 个人主页</title>
+    <!-- Font Awesome 图标库 (v6 免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d1117;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            color: #e6edf3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .profile-card {
+            max-width: 880px;
+            width: 100%;
+            background: #161b22;
+            border-radius: 32px;
+            padding: 2rem 2rem 2.2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            border: 1px solid #30363d;
+            transition: all 0.2s ease;
+        }
+
+        /* 头部：头像 + 用户名 + 标签 */
+        .profile-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.2rem 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .avatar-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #21262d;
+            border-radius: 50%;
+            width: 88px;
+            height: 88px;
+            border: 2px solid #30363d;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px #0d1117;
+        }
+
+        .avatar-wrapper i {
+            font-size: 4rem;
+            color: #8b949e;
+        }
+
+        .user-title {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .user-title h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.8rem;
+        }
+
+        .user-title h1 span.username {
+            background: #21262d;
+            padding: 0.1rem 0.7rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #58a6ff;
+            border: 1px solid #30363d;
+        }
+
+        .user-title .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.7rem;
+            margin-top: 0.4rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: #21262d;
+            padding: 0.2rem 0.9rem 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            border: 1px solid #30363d;
+            color: #b1bac4;
+            letter-spacing: 0.02em;
+        }
+
+        .badge i {
+            color: #f0883e;
+            font-size: 0.7rem;
+        }
+
+        .badge .fa-tag {
+            color: #58a6ff;
+        }
+
+        .badge.highlight {
+            background: #1f2937;
+            border-color: #4f5b68;
+            color: #e6edf3;
+        }
+
+        /* 评分卡 + 六维区域 仿 ghfind 风格 */
+        .score-area {
+            background: #0d1117;
+            border-radius: 24px;
+            padding: 1.5rem 1.8rem;
+            margin: 1.5rem 0 2rem;
+            border: 1px solid #30363d;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .score-main {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .score-main .number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #f0e6d0;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .score-main .label {
+            font-size: 1rem;
+            color: #8b949e;
+            font-weight: 400;
+            margin-left: 0.1rem;
+        }
+
+        .score-main .emoji-big {
+            font-size: 2.2rem;
+            margin-left: 0.3rem;
+        }
+
+        .score-tag {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem 1.2rem;
+        }
+
+        .score-tag .tag {
+            background: #21262d;
+            padding: 0.25rem 1rem 0.25rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            border: 1px solid #30363d;
+            color: #b1bac4;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .score-tag .tag i {
+            color: #d29922;
+        }
+
+        .rank-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem 1.5rem;
+            margin-top: 0.6rem;
+            font-size: 0.9rem;
+            color: #8b949e;
+            border-top: 1px solid #21262d;
+            padding-top: 0.8rem;
+        }
+
+        .rank-line strong {
+            color: #e6edf3;
+            font-weight: 500;
+        }
+
+        .rank-line .highlight-num {
+            color: #f0883e;
+            font-weight: 600;
+        }
+
+        /* 六维 / 维度评分 (简洁) */
+        .dimensions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.2rem 1.5rem;
+            margin: 1.8rem 0 1.2rem;
+            background: #0d1117;
+            padding: 1.2rem 1.5rem;
+            border-radius: 24px;
+            border: 1px solid #21262d;
+        }
+
+        .dim-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .dim-item .dim-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #8b949e;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .dim-item .dim-bar {
+            width: 100%;
+            height: 5px;
+            background: #21262d;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .dim-item .dim-fill {
+            height: 100%;
+            background: #58a6ff;
+            border-radius: 20px;
+            width: 0%;
+        }
+
+        .dim-item .dim-fill.orange {
+            background: #d29922;
+        }
+
+        .dim-item .dim-fill.green {
+            background: #2ea043;
+        }
+
+        .dim-item .dim-fill.purple {
+            background: #bc8cff;
+        }
+
+        .dim-item .dim-fill.red {
+            background: #f85149;
+        }
+
+        .dim-item .dim-value {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #e6edf3;
+        }
+
+        /* 代表作 卡片 */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.8rem 0 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #e6edf3;
+        }
+
+        .section-title i {
+            color: #58a6ff;
+            font-size: 1rem;
+        }
+
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .repo-item {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 18px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            flex-direction: column;
+            transition: border 0.15s;
+        }
+
+        .repo-item:hover {
+            border-color: #30363d;
+        }
+
+        .repo-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #58a6ff;
+            word-break: break-all;
+        }
+
+        .repo-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.4rem;
+            font-size: 0.75rem;
+            color: #8b949e;
+        }
+
+        .repo-meta i {
+            margin-right: 0.2rem;
+        }
+
+        .repo-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .lang-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f1e05a;
+            margin-right: 0.2rem;
+        }
+
+        .lang-dot.blue {
+            background: #563d7c;
+        }
+        .lang-dot.green {
+            background: #00b4c0;
+        }
+        .lang-dot.purple {
+            background: #a97bff;
+        }
+        .lang-dot.orange {
+            background: #d19a66;
+        }
+        .lang-dot.red {
+            background: #e34c26;
+        }
+
+        /* 毒舌 + 技术栈 融合 */
+        .roast-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 2rem 0 1.2rem;
+            background: #0d1117;
+            border-radius: 24px;
+            padding: 1.5rem 1.8rem;
+            border: 1px solid #21262d;
+        }
+
+        .roast-box {
+            flex: 2;
+            min-width: 220px;
+        }
+
+        .roast-box .roast-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b949e;
+            margin-bottom: 0.3rem;
+        }
+
+        .roast-box .roast-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            background: #161b22;
+            padding: 0.8rem 1rem;
+            border-radius: 16px;
+            border-left: 3px solid #d29922;
+            color: #c9d1d9;
+        }
+
+        .tech-stack {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .tech-stack .tech-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b949e;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem 0.6rem;
+        }
+
+        .tech-item {
+            background: #21262d;
+            padding: 0.15rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            border: 1px solid #30363d;
+            color: #b1bac4;
+        }
+
+        .tech-item .pct {
+            color: #58a6ff;
+            font-weight: 400;
+            margin-left: 0.2rem;
+        }
+
+        /* 社区反应 / 按钮 (简约) */
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem 1.2rem;
+            margin-top: 1.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #21262d;
+        }
+
+        .reaction-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .reaction-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 40px;
+            padding: 0.25rem 1rem 0.25rem 0.8rem;
+            color: #c9d1d9;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: default;
+        }
+
+        .reaction-btn i {
+            color: #f0883e;
+        }
+
+        .share-links {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .share-links a {
+            color: #8b949e;
+            background: #21262d;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            border: 1px solid #30363d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: 0.15s;
+        }
+
+        .share-links a:hover {
+            color: #e6edf3;
+            border-color: #58a6ff;
+        }
+
+        .footer-note {
+            margin-top: 1.8rem;
+            font-size: 0.7rem;
+            color: #484f58;
+            text-align: center;
+            border-top: 1px solid #21262d;
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .footer-note a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .profile-card {
+                padding: 1.2rem;
+            }
+            .score-area {
+                flex-direction: column;
+                align-items: start;
+                gap: 0.8rem;
+            }
+            .score-main .number {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* 徽章占位微调 */
+        .badge i.fa-github {
+            color: #f0e6d0;
+        }
+
+        .profile-link {
+            color: #58a6ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .profile-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 类似ghfind 小标记 */
+        .insignia {
+            background: #0d1117;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            border: 1px solid #21262d;
+            font-size: 0.7rem;
+            color: #8b949e;
+        }
+    </style>
 </head>
 <body>
-<p>你们好，这里是<a href="https://b23.tv/1faogJI">开大加成ProMax</a>!</p>
-<p><a href="htmlpreview">htmlpreview</a></p>
+    <div class="profile-card">
+
+        <!-- 头部 -->
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-title">
+                <h1>
+                    开大加成ProMax
+                    <span class="username">@kdjcpm</span>
+                    <span class="insignia"><i class="fas fa-check-circle" style="color:#2ea043;"></i> ghfind</span>
+                </h1>
+                <div class="badge-group">
+                    <span class="badge"><i class="fas fa-tag"></i> #空仓收藏家</span>
+                    <span class="badge"><i class="fas fa-tag"></i> #开源简历工</span>
+                    <span class="badge"><i class="fas fa-tag"></i> #星标乞讨者</span>
+                    <span class="badge highlight"><i class="fas fa-skull"></i> #Repo Hoarder</span>
+                    <span class="badge"><i class="fas fa-code"></i> 低价值 · 疑似刷量</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 评分 + 排名 融合 -->
+        <div class="score-area">
+            <div class="score-main">
+                <span class="number">23.50</span>
+                <span class="label">/ 100</span>
+                <span class="emoji-big">💩</span>
+                <span style="color:#b1bac4; font-size:1rem; margin-left:0.2rem;">拉完了</span>
+            </div>
+            <div class="score-tag">
+                <span class="tag"><i class="fas fa-ranking-star"></i> #5154 / 6411</span>
+                <span class="tag"><i class="fas fa-arrow-up" style="color:#2ea043;"></i> 击败 19.5%</span>
+                <span class="tag"><i class="fas fa-robot"></i> NPC 差 16.50</span>
+            </div>
+        </div>
+
+        <!-- 维度评分 (六维) -->
+        <div class="dimensions">
+            <div class="dim-item">
+                <div class="dim-label"><span>账号成熟度</span><span>1.7 / 10</span></div>
+                <div class="dim-bar"><div class="dim-fill" style="width:17%"></div></div>
+            </div>
+            <div class="dim-item">
+                <div class="dim-label"><span>原创项目质量</span><span>7.4 / 18</span></div>
+                <div class="dim-bar"><div class="dim-fill orange" style="width:41%"></div></div>
+            </div>
+            <div class="dim-item">
+                <div class="dim-label"><span>贡献质量</span><span>1.2 / 27</span></div>
+                <div class="dim-bar"><div class="dim-fill red" style="width:4.4%"></div></div>
+            </div>
+            <div class="dim-item">
+                <div class="dim-label"><span>生态/维护</span><span>0.0 / 20</span></div>
+                <div class="dim-bar"><div class="dim-fill" style="width:0%"></div></div>
+            </div>
+            <div class="dim-item">
+                <div class="dim-label"><span>社区影响力</span><span>1.0 / 8</span></div>
+                <div class="dim-bar"><div class="dim-fill green" style="width:12%"></div></div>
+            </div>
+            <div class="dim-item">
+                <div class="dim-label"><span>活跃真实性</span><span>12.2 / 17</span></div>
+                <div class="dim-bar"><div class="dim-fill purple" style="width:71%"></div></div>
+            </div>
+        </div>
+
+        <!-- 代表作 -->
+        <div class="section-title">
+            <i class="fas fa-bookmark"></i> 代表作
+            <span style="font-size:0.7rem; font-weight:400; color:#8b949e; margin-left:0.2rem;">按实质贡献优先</span>
+        </div>
+        <div class="repo-grid">
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/https-Droidspaces-rootfs-KDE-builder_2</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 5</span><span class="repo-lang"><span class="lang-dot"></span> Dockerfile</span></div>
+            </div>
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/-----</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot blue"></span> Dart</span></div>
+            </div>
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/Droidspaces-OSS</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot purple"></span> Kotlin</span></div>
+            </div>
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/Droidspaces-rootfs-KDE-builder</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot"></span> Dockerfile</span></div>
+            </div>
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/GPT-SoViTs-android</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot orange"></span> Python</span></div>
+            </div>
+            <div class="repo-item">
+                <div class="repo-name">KDJCPM/liveboot</div>
+                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot red"></span> Java</span></div>
+            </div>
+        </div>
+
+        <!-- 毒舌 + 技术栈 混合 -->
+        <div class="roast-tech">
+            <div class="roast-box">
+                <div class="roast-title"><i class="fas fa-fire" style="color:#d29922;"></i> 毒舌点评</div>
+                <div class="roast-text">
+                    🔥 注册不到一年粉丝为0、总PR为0、总星仅5，把GitHub当私人代码备份网盘还硬凹开源人设，拉完了的含金量连Hello World都不如。<br>
+                    <span style="color:#8b949e; font-size:0.8rem;">KDJCPM — 23.50/100 · 拉完了 (低价值 · 疑似刷量/AI 机器人)</span>
+                </div>
+                <div style="margin-top:0.5rem; font-size:0.8rem; color:#8b949e;">
+                    <i class="fas fa-lightbulb" style="color:#d29922;"></i> 建议：别再把GitHub当私人备份盘，试着给别人的项目提PR。
+                </div>
+            </div>
+            <div class="tech-stack">
+                <div class="tech-title"><i class="fas fa-code"></i> 技术栈 & 领域</div>
+                <div class="tech-items">
+                    <span class="tech-item">Java <span class="pct">18%</span></span>
+                    <span class="tech-item">Kotlin <span class="pct">14%</span></span>
+                    <span class="tech-item">Shell <span class="pct">13%</span></span>
+                    <span class="tech-item">Dockerfile <span class="pct">12%</span></span>
+                    <span class="tech-item">JavaScript <span class="pct">9%</span></span>
+                    <span class="tech-item">C <span class="pct">9%</span></span>
+                </div>
+                <div style="margin-top:0.8rem; font-size:0.7rem; color:#484f58;">
+                    <i class="fas fa-user-group"></i> 最像：@r05en1cu · @yrc-better · @worable233
+                </div>
+            </div>
+        </div>
+
+        <!-- 社区反应 + 操作 -->
+        <div class="action-bar">
+            <div class="reaction-group">
+                <span class="reaction-btn"><i class="far fa-smile"></i> 🙂+ </span>
+                <span class="reaction-btn"><i class="fas fa-camera"></i> 保存炫耀图</span>
+                <span class="reaction-btn"><i class="fas fa-share-alt"></i> 分享</span>
+            </div>
+            <div class="share-links">
+                <a href="#"><i class="fas fa-link"></i> 复制徽章</a>
+                <a href="#"><i class="fas fa-code"></i> HTML</a>
+            </div>
+        </div>
+
+        <!-- 贴到GitHub主页 简洁版 -->
+        <div style="background:#0d1117; border-radius:20px; padding:1rem 1.2rem; margin-top:1.5rem; border:1px solid #21262d;">
+            <div style="display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:space-between;">
+                <span style="font-size:0.8rem; color:#8b949e;"><i class="fas fa-paste"></i> 贴到你的 GitHub 主页</span>
+                <span style="font-size:0.7rem; background:#21262d; padding:0.2rem 0.8rem; border-radius:40px; color:#b1bac4;">
+                    <i class="fas fa-adjust"></i> 自动 · 暗色 · 亮色
+                </span>
+            </div>
+            <div style="margin-top:0.5rem; font-size:0.7rem; background:#161b22; padding:0.4rem 0.8rem; border-radius:16px; color:#8b949e; word-break:break-all;">
+                <i class="fas fa-image"></i> https://ghfind.com/api/card/mini/kdjcpm?lang=zh
+            </div>
+        </div>
+
+        <!-- footer -->
+        <div class="footer-note">
+            <span><i class="fas fa-flask"></i> ghfind · GitHub 开发者含金量</span>
+            <span><a href="#"><i class="fas fa-scroll"></i> 评分方法</a> · <a href="#"><i class="fas fa-info-circle"></i> 关于</a> · <a href="#"><i class="fas fa-lock"></i> 隐私</a></span>
+            <span>⚡ Powered by LobeHub</span>
+        </div>
+    </div>
 </body>
 </html>
