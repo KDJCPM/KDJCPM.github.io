@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>开大加成ProMax · 个人主页</title>
-    <!-- Font Awesome 图标库 (v6 免费) -->
+    <title>KDJCPM · 个人主页</title>
+    <!-- FontAwesome (简洁图标库) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* 全局重置 + 暗色主题变量 */
         * {
             margin: 0;
             padding: 0;
@@ -14,699 +15,686 @@
         }
 
         body {
-            background: #0d1117;
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            color: #e6edf3;
+            background: #0b0b0d;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #e8e8ed;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             padding: 2rem 1rem;
+            line-height: 1.5;
+            min-height: 100vh;
         }
 
-        .profile-card {
+        .container {
             max-width: 880px;
             width: 100%;
-            background: #161b22;
-            border-radius: 32px;
-            padding: 2rem 2rem 2.2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-            border: 1px solid #30363d;
-            transition: all 0.2s ease;
         }
 
-        /* 头部：头像 + 用户名 + 标签 */
+        /* 卡片通用设计 */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 28px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.7);
+            transition: border 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* 头像 / 头部区域 */
         .profile-header {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
-            gap: 1.2rem 1.5rem;
-            margin-bottom: 1.8rem;
+            text-align: center;
+            gap: 0.8rem;
         }
 
-        .avatar-wrapper {
+        .avatar-frame {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(244, 63, 94, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #21262d;
+            box-shadow: 0 0 40px -10px rgba(244, 63, 94, 0.4);
+            border: 2px solid rgba(244, 63, 94, 0.5);
+        }
+
+        .avatar-frame img {
+            width: 104px;
+            height: 104px;
             border-radius: 50%;
-            width: 88px;
-            height: 88px;
-            border: 2px solid #30363d;
-            flex-shrink: 0;
-            box-shadow: 0 0 0 2px #0d1117;
+            object-fit: cover;
+            border: 2px solid #0b0b0d;
+            background: #1c1c22;
         }
 
-        .avatar-wrapper i {
-            font-size: 4rem;
-            color: #8b949e;
-        }
-
-        .user-title {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .user-title h1 {
-            font-size: 1.9rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
+        .tier-emoji-ring {
+            position: absolute;
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 0.3rem 0.8rem;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
         }
 
-        .user-title h1 span.username {
-            background: #21262d;
-            padding: 0.1rem 0.7rem;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #58a6ff;
-            border: 1px solid #30363d;
+        .tier-emoji-ring span {
+            position: absolute;
+            font-size: 1.1rem;
+            filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.3));
         }
 
-        .user-title .badge-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem 0.7rem;
-            margin-top: 0.4rem;
-        }
+        /* 定位八个 💩 表情 (按照原页面风格) */
+        .emoji-pos-1 { top: -6%; left: 50%; transform: translateX(-50%); }
+        .emoji-pos-2 { top: 12%; right: -6%; }
+        .emoji-pos-3 { top: 50%; right: -10%; transform: translateY(-50%); }
+        .emoji-pos-4 { bottom: 12%; right: -6%; }
+        .emoji-pos-5 { bottom: -6%; left: 50%; transform: translateX(-50%); }
+        .emoji-pos-6 { bottom: 12%; left: -6%; }
+        .emoji-pos-7 { top: 50%; left: -10%; transform: translateY(-50%); }
+        .emoji-pos-8 { top: 12%; left: -6%; }
 
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            background: #21262d;
-            padding: 0.2rem 0.9rem 0.2rem 0.7rem;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            border: 1px solid #30363d;
-            color: #b1bac4;
-            letter-spacing: 0.02em;
-        }
-
-        .badge i {
-            color: #f0883e;
-            font-size: 0.7rem;
-        }
-
-        .badge .fa-tag {
-            color: #58a6ff;
-        }
-
-        .badge.highlight {
-            background: #1f2937;
-            border-color: #4f5b68;
-            color: #e6edf3;
-        }
-
-        /* 评分卡 + 六维区域 仿 ghfind 风格 */
-        .score-area {
-            background: #0d1117;
-            border-radius: 24px;
-            padding: 1.5rem 1.8rem;
-            margin: 1.5rem 0 2rem;
-            border: 1px solid #30363d;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .score-main {
-            display: flex;
-            align-items: baseline;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .score-main .number {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #f0e6d0;
-            letter-spacing: -0.02em;
-            line-height: 1;
-        }
-
-        .score-main .label {
-            font-size: 1rem;
-            color: #8b949e;
-            font-weight: 400;
-            margin-left: 0.1rem;
-        }
-
-        .score-main .emoji-big {
+        .display-name {
             font-size: 2.2rem;
-            margin-left: 0.3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            box-shadow: 0 0 20px -8px rgba(244, 63, 94, 0.25);
+            display: inline-block;
         }
 
-        .score-tag {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.8rem 1.2rem;
+        .display-name a {
+            color: #f8718d;
+            text-decoration: none;
         }
 
-        .score-tag .tag {
-            background: #21262d;
-            padding: 0.25rem 1rem 0.25rem 0.9rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            border: 1px solid #30363d;
-            color: #b1bac4;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
+        .display-name a:hover {
+            color: #fba9b9;
         }
 
-        .score-tag .tag i {
-            color: #d29922;
+        .real-name {
+            font-size: 1rem;
+            color: #a8a8b5;
+            margin-top: -0.2rem;
         }
 
-        .rank-line {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.8rem 1.5rem;
-            margin-top: 0.6rem;
-            font-size: 0.9rem;
-            color: #8b949e;
-            border-top: 1px solid #21262d;
-            padding-top: 0.8rem;
+        .score-badge {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 80px;
+            padding: 0.3rem 1.6rem;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            backdrop-filter: blur(4px);
         }
 
-        .rank-line strong {
-            color: #e6edf3;
+        .score-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #fb7185;
+            letter-spacing: -1px;
+        }
+
+        .score-number small {
+            font-size: 1.2rem;
             font-weight: 500;
+            color: #6b6b7a;
         }
 
-        .rank-line .highlight-num {
-            color: #f0883e;
-            font-weight: 600;
+        .tier-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fb7185;
         }
 
-        /* 六维 / 维度评分 (简洁) */
-        .dimensions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.2rem 1.5rem;
-            margin: 1.8rem 0 1.2rem;
-            background: #0d1117;
-            padding: 1.2rem 1.5rem;
-            border-radius: 24px;
-            border: 1px solid #21262d;
+        .tier-sub {
+            font-size: 0.9rem;
+            color: #a0a0b0;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .dim-item {
+        .tags {
             display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
         }
 
-        .dim-item .dim-label {
+        .tag {
+            background: rgba(251, 146, 60, 0.12);
+            color: #fcd9b8;
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(251, 146, 60, 0.15);
+        }
+
+        .tag-en {
+            background: rgba(56, 189, 248, 0.08);
+            color: #b8dff8;
+            border-color: rgba(56, 189, 248, 0.12);
+        }
+
+        /* 信息网格 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            padding: 0.8rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .info-item .label {
             font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #8b949e;
-            display: flex;
-            justify-content: space-between;
+            letter-spacing: 0.5px;
+            color: #8a8a9a;
         }
 
-        .dim-item .dim-bar {
-            width: 100%;
-            height: 5px;
-            background: #21262d;
+        .info-item .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f0f0f5;
+        }
+
+        .info-item .sub {
+            font-size: 0.8rem;
+            color: #a5a5b5;
+        }
+
+        /* 进度条 (维度) */
+        .dimension-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 0.6rem;
+        }
+
+        .dimension-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .dimension-name {
+            width: 120px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #cfcfdd;
+            flex-shrink: 0;
+        }
+
+        .dimension-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 20px;
             overflow: hidden;
         }
 
-        .dim-item .dim-fill {
+        .dimension-bar-fill {
             height: 100%;
-            background: #58a6ff;
             border-radius: 20px;
-            width: 0%;
+            background: linear-gradient(90deg, #fb7185, #facc15);
+            transition: width 0.3s;
         }
 
-        .dim-item .dim-fill.orange {
-            background: #d29922;
-        }
-
-        .dim-item .dim-fill.green {
-            background: #2ea043;
-        }
-
-        .dim-item .dim-fill.purple {
-            background: #bc8cff;
-        }
-
-        .dim-item .dim-fill.red {
-            background: #f85149;
-        }
-
-        .dim-item .dim-value {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #e6edf3;
-        }
-
-        /* 代表作 卡片 */
-        .section-title {
-            font-size: 1.1rem;
+        .dimension-score {
+            width: 48px;
+            text-align: right;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin: 1.8rem 0 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #e6edf3;
+            color: #ddddff;
         }
 
-        .section-title i {
-            color: #58a6ff;
-            font-size: 1rem;
+        .dimension-total {
+            font-size: 0.65rem;
+            color: #77778a;
+            margin-left: 2px;
         }
 
-        .repo-grid {
+        /* 代表作 & 相似开发者 */
+        .repo-grid, .similar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 0.8rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.7rem;
+            margin-top: 0.8rem;
         }
 
-        .repo-item {
-            background: #0d1117;
-            border: 1px solid #21262d;
-            border-radius: 18px;
-            padding: 0.9rem 1rem;
+        .repo-card, .similar-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 0.7rem 1rem;
+            transition: background 0.15s;
             display: flex;
-            flex-direction: column;
-            transition: border 0.15s;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .repo-item:hover {
-            border-color: #30363d;
+        .repo-card:hover, .similar-card:hover {
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .repo-name {
+            font-size: 0.85rem;
             font-weight: 500;
-            font-size: 0.9rem;
-            color: #58a6ff;
-            word-break: break-all;
+            color: #d0d0e0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
         }
 
-        .repo-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.4rem;
-            font-size: 0.75rem;
-            color: #8b949e;
-        }
-
-        .repo-meta i {
-            margin-right: 0.2rem;
+        .repo-stars {
+            font-size: 0.8rem;
+            color: #9a9aaf;
         }
 
         .repo-lang {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-        }
-
-        .lang-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #f1e05a;
-            margin-right: 0.2rem;
-        }
-
-        .lang-dot.blue {
-            background: #563d7c;
-        }
-        .lang-dot.green {
-            background: #00b4c0;
-        }
-        .lang-dot.purple {
-            background: #a97bff;
-        }
-        .lang-dot.orange {
-            background: #d19a66;
-        }
-        .lang-dot.red {
-            background: #e34c26;
-        }
-
-        /* 毒舌 + 技术栈 融合 */
-        .roast-tech {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin: 2rem 0 1.2rem;
-            background: #0d1117;
-            border-radius: 24px;
-            padding: 1.5rem 1.8rem;
-            border: 1px solid #21262d;
-        }
-
-        .roast-box {
-            flex: 2;
-            min-width: 220px;
-        }
-
-        .roast-box .roast-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #8b949e;
-            margin-bottom: 0.3rem;
-        }
-
-        .roast-box .roast-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            background: #161b22;
-            padding: 0.8rem 1rem;
-            border-radius: 16px;
-            border-left: 3px solid #d29922;
-            color: #c9d1d9;
-        }
-
-        .tech-stack {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .tech-stack .tech-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #8b949e;
-            margin-bottom: 0.5rem;
-        }
-
-        .tech-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem 0.6rem;
-        }
-
-        .tech-item {
-            background: #21262d;
-            padding: 0.15rem 0.7rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            border: 1px solid #30363d;
-            color: #b1bac4;
-        }
-
-        .tech-item .pct {
-            color: #58a6ff;
-            font-weight: 400;
-            margin-left: 0.2rem;
-        }
-
-        /* 社区反应 / 按钮 (简约) */
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.8rem 1.2rem;
-            margin-top: 1.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid #21262d;
-        }
-
-        .reaction-group {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .reaction-btn {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 40px;
-            padding: 0.25rem 1rem 0.25rem 0.8rem;
-            color: #c9d1d9;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: default;
-        }
-
-        .reaction-btn i {
-            color: #f0883e;
-        }
-
-        .share-links {
-            display: flex;
-            gap: 0.6rem;
-        }
-
-        .share-links a {
-            color: #8b949e;
-            background: #21262d;
-            padding: 0.3rem 0.8rem;
-            border-radius: 40px;
             font-size: 0.7rem;
-            border: 1px solid #30363d;
-            text-decoration: none;
+            color: #7e7e92;
+            background: rgba(255,255,255,0.04);
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+        }
+
+        .similar-card {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .similar-card img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1f1f2a;
+        }
+
+        .similar-info {
+            flex: 1;
+        }
+
+        .similar-username {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #d8d8ec;
+        }
+
+        .similar-tag {
+            font-size: 0.6rem;
+            color: #f0b27a;
+            background: rgba(251, 146, 60, 0.08);
+            padding: 0.05rem 0.6rem;
+            border-radius: 30px;
+        }
+
+        .similar-score {
+            font-weight: 700;
+            color: #fb7185;
+            font-size: 0.85rem;
+        }
+
+        /* 技术栈语言条 */
+        .lang-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .lang-name {
+            width: 100px;
+            font-size: 0.85rem;
+            color: #d0d0e0;
+        }
+
+        .lang-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 20px;
+        }
+
+        .lang-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: #38bdf8;
+        }
+
+        .lang-percent {
+            width: 40px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #9a9ab0;
+        }
+
+        /* 毒舌点评 */
+        .roast-box {
+            background: rgba(244, 63, 94, 0.06);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 20px;
+            padding: 1.4rem 1.8rem;
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        .roast-box p {
+            font-size: 1rem;
+            color: #ececf5;
+            line-height: 1.6;
+        }
+
+        .roast-box strong {
+            color: #facc15;
+        }
+
+        /* 底部按钮 */
+        .action-btn {
+            background: rgba(234, 88, 12, 0.85);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.8rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
-            transition: 0.15s;
-        }
-
-        .share-links a:hover {
-            color: #e6edf3;
-            border-color: #58a6ff;
-        }
-
-        .footer-note {
-            margin-top: 1.8rem;
-            font-size: 0.7rem;
-            color: #484f58;
-            text-align: center;
-            border-top: 1px solid #21262d;
-            padding-top: 1rem;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .footer-note a {
-            color: #58a6ff;
+            gap: 8px;
             text-decoration: none;
         }
 
-        .footer-note a:hover {
-            text-decoration: underline;
+        .action-btn:hover {
+            background: #ea580c;
+            transform: scale(1.02);
+        }
+
+        .action-btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #d0d0e0;
+        }
+
+        .action-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .footer-meta {
+            text-align: center;
+            margin-top: 2rem;
+            color: #5c5c70;
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 1.8rem;
         }
 
         /* 响应式 */
-        @media (max-width: 600px) {
-            .profile-card {
-                padding: 1.2rem;
+        @media (max-width: 640px) {
+            .card {
+                padding: 1.2rem 1rem;
             }
-            .score-area {
-                flex-direction: column;
-                align-items: start;
-                gap: 0.8rem;
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.7rem;
             }
-            .score-main .number {
+            .repo-grid, .similar-grid {
+                grid-template-columns: 1fr;
+            }
+            .dimension-name {
+                width: 90px;
+                font-size: 0.75rem;
+            }
+            .display-name {
+                font-size: 1.6rem;
+                padding: 0.1rem 1rem;
+            }
+            .score-number {
                 font-size: 2.2rem;
             }
+            .tier-label {
+                font-size: 1.2rem;
+            }
+            .avatar-frame {
+                width: 100px;
+                height: 100px;
+            }
+            .avatar-frame img {
+                width: 86px;
+                height: 86px;
+            }
         }
 
-        /* 徽章占位微调 */
-        .badge i.fa-github {
-            color: #f0e6d0;
+        /* 辅助 */
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .profile-link {
-            color: #58a6ff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .profile-link:hover {
-            text-decoration: underline;
-        }
-
-        /* 类似ghfind 小标记 */
-        .insignia {
-            background: #0d1117;
-            padding: 0.2rem 0.7rem;
-            border-radius: 30px;
-            border: 1px solid #21262d;
-            font-size: 0.7rem;
-            color: #8b949e;
-        }
+        .gap-2 { gap: 0.5rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .text-center { text-align: center; }
+        .text-muted { color: #8a8a9e; }
+        .text-sm { font-size: 0.85rem; }
     </style>
 </head>
 <body>
-    <div class="profile-card">
+<div class="container">
 
-        <!-- 头部 -->
+    <!-- 头部卡片：头像 + 名字 + 分数 + 标签 -->
+    <div class="card">
         <div class="profile-header">
-            <div class="avatar-wrapper">
-                <i class="fas fa-user-circle"></i>
-            </div>
-            <div class="user-title">
-                <h1>
-                    开大加成ProMax
-                    <span class="username">@kdjcpm</span>
-                    <span class="insignia"><i class="fas fa-check-circle" style="color:#2ea043;"></i> ghfind</span>
-                </h1>
-                <div class="badge-group">
-                    <span class="badge"><i class="fas fa-tag"></i> #空仓收藏家</span>
-                    <span class="badge"><i class="fas fa-tag"></i> #开源简历工</span>
-                    <span class="badge"><i class="fas fa-tag"></i> #星标乞讨者</span>
-                    <span class="badge highlight"><i class="fas fa-skull"></i> #Repo Hoarder</span>
-                    <span class="badge"><i class="fas fa-code"></i> 低价值 · 疑似刷量</span>
+            <!-- 头像 + 💩 环绕 -->
+            <div class="avatar-frame">
+                <img src="https://avatars.githubusercontent.com/u/255457522?v=4" alt="KDJCPM avatar">
+                <div class="tier-emoji-ring">
+                    <span class="emoji-pos-1">💩</span>
+                    <span class="emoji-pos-2">💩</span>
+                    <span class="emoji-pos-3">💩</span>
+                    <span class="emoji-pos-4">💩</span>
+                    <span class="emoji-pos-5">💩</span>
+                    <span class="emoji-pos-6">💩</span>
+                    <span class="emoji-pos-7">💩</span>
+                    <span class="emoji-pos-8">💩</span>
                 </div>
             </div>
-        </div>
 
-        <!-- 评分 + 排名 融合 -->
-        <div class="score-area">
-            <div class="score-main">
-                <span class="number">23.50</span>
-                <span class="label">/ 100</span>
-                <span class="emoji-big">💩</span>
-                <span style="color:#b1bac4; font-size:1rem; margin-left:0.2rem;">拉完了</span>
+            <div class="display-name">
+                <a href="https://github.com/KDJCPM" target="_blank">@kdjcpm</a>
             </div>
-            <div class="score-tag">
-                <span class="tag"><i class="fas fa-ranking-star"></i> #5154 / 6411</span>
-                <span class="tag"><i class="fas fa-arrow-up" style="color:#2ea043;"></i> 击败 19.5%</span>
-                <span class="tag"><i class="fas fa-robot"></i> NPC 差 16.50</span>
-            </div>
-        </div>
+            <div class="real-name">Gogol</div>
 
-        <!-- 维度评分 (六维) -->
-        <div class="dimensions">
-            <div class="dim-item">
-                <div class="dim-label"><span>账号成熟度</span><span>1.7 / 10</span></div>
-                <div class="dim-bar"><div class="dim-fill" style="width:17%"></div></div>
+            <div class="score-badge">
+                <span class="score-number">23.50 <small>/ 100</small></span>
             </div>
-            <div class="dim-item">
-                <div class="dim-label"><span>原创项目质量</span><span>7.4 / 18</span></div>
-                <div class="dim-bar"><div class="dim-fill orange" style="width:41%"></div></div>
-            </div>
-            <div class="dim-item">
-                <div class="dim-label"><span>贡献质量</span><span>1.2 / 27</span></div>
-                <div class="dim-bar"><div class="dim-fill red" style="width:4.4%"></div></div>
-            </div>
-            <div class="dim-item">
-                <div class="dim-label"><span>生态/维护</span><span>0.0 / 20</span></div>
-                <div class="dim-bar"><div class="dim-fill" style="width:0%"></div></div>
-            </div>
-            <div class="dim-item">
-                <div class="dim-label"><span>社区影响力</span><span>1.0 / 8</span></div>
-                <div class="dim-bar"><div class="dim-fill green" style="width:12%"></div></div>
-            </div>
-            <div class="dim-item">
-                <div class="dim-label"><span>活跃真实性</span><span>12.2 / 17</span></div>
-                <div class="dim-bar"><div class="dim-fill purple" style="width:71%"></div></div>
-            </div>
-        </div>
+            <div class="tier-label">💩 拉完了</div>
+            <div class="tier-sub">低价值 · 疑似刷量 / AI 机器人</div>
 
-        <!-- 代表作 -->
-        <div class="section-title">
-            <i class="fas fa-bookmark"></i> 代表作
-            <span style="font-size:0.7rem; font-weight:400; color:#8b949e; margin-left:0.2rem;">按实质贡献优先</span>
-        </div>
-        <div class="repo-grid">
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/https-Droidspaces-rootfs-KDE-builder_2</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 5</span><span class="repo-lang"><span class="lang-dot"></span> Dockerfile</span></div>
+            <div class="tags">
+                <span class="tag">#空仓收藏家</span>
+                <span class="tag">#开源简历工</span>
+                <span class="tag">#星标乞讨者</span>
+                <span class="tag">#PR零产出户</span>
+                <span class="tag tag-en">#Repo Hoarder</span>
+                <span class="tag tag-en">#Resume Farmer</span>
+                <span class="tag tag-en">#Star Beggar</span>
+                <span class="tag tag-en">#Zero Contributor</span>
             </div>
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/-----</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot blue"></span> Dart</span></div>
-            </div>
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/Droidspaces-OSS</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot purple"></span> Kotlin</span></div>
-            </div>
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/Droidspaces-rootfs-KDE-builder</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot"></span> Dockerfile</span></div>
-            </div>
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/GPT-SoViTs-android</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot orange"></span> Python</span></div>
-            </div>
-            <div class="repo-item">
-                <div class="repo-name">KDJCPM/liveboot</div>
-                <div class="repo-meta"><span><i class="fas fa-star"></i> 0</span><span class="repo-lang"><span class="lang-dot red"></span> Java</span></div>
-            </div>
-        </div>
-
-        <!-- 毒舌 + 技术栈 混合 -->
-        <div class="roast-tech">
-            <div class="roast-box">
-                <div class="roast-title"><i class="fas fa-fire" style="color:#d29922;"></i> 毒舌点评</div>
-                <div class="roast-text">
-                    🔥 注册不到一年粉丝为0、总PR为0、总星仅5，把GitHub当私人代码备份网盘还硬凹开源人设，拉完了的含金量连Hello World都不如。<br>
-                    <span style="color:#8b949e; font-size:0.8rem;">KDJCPM — 23.50/100 · 拉完了 (低价值 · 疑似刷量/AI 机器人)</span>
-                </div>
-                <div style="margin-top:0.5rem; font-size:0.8rem; color:#8b949e;">
-                    <i class="fas fa-lightbulb" style="color:#d29922;"></i> 建议：别再把GitHub当私人备份盘，试着给别人的项目提PR。
-                </div>
-            </div>
-            <div class="tech-stack">
-                <div class="tech-title"><i class="fas fa-code"></i> 技术栈 & 领域</div>
-                <div class="tech-items">
-                    <span class="tech-item">Java <span class="pct">18%</span></span>
-                    <span class="tech-item">Kotlin <span class="pct">14%</span></span>
-                    <span class="tech-item">Shell <span class="pct">13%</span></span>
-                    <span class="tech-item">Dockerfile <span class="pct">12%</span></span>
-                    <span class="tech-item">JavaScript <span class="pct">9%</span></span>
-                    <span class="tech-item">C <span class="pct">9%</span></span>
-                </div>
-                <div style="margin-top:0.8rem; font-size:0.7rem; color:#484f58;">
-                    <i class="fas fa-user-group"></i> 最像：@r05en1cu · @yrc-better · @worable233
-                </div>
-            </div>
-        </div>
-
-        <!-- 社区反应 + 操作 -->
-        <div class="action-bar">
-            <div class="reaction-group">
-                <span class="reaction-btn"><i class="far fa-smile"></i> 🙂+ </span>
-                <span class="reaction-btn"><i class="fas fa-camera"></i> 保存炫耀图</span>
-                <span class="reaction-btn"><i class="fas fa-share-alt"></i> 分享</span>
-            </div>
-            <div class="share-links">
-                <a href="#"><i class="fas fa-link"></i> 复制徽章</a>
-                <a href="#"><i class="fas fa-code"></i> HTML</a>
-            </div>
-        </div>
-
-        <!-- 贴到GitHub主页 简洁版 -->
-        <div style="background:#0d1117; border-radius:20px; padding:1rem 1.2rem; margin-top:1.5rem; border:1px solid #21262d;">
-            <div style="display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:space-between;">
-                <span style="font-size:0.8rem; color:#8b949e;"><i class="fas fa-paste"></i> 贴到你的 GitHub 主页</span>
-                <span style="font-size:0.7rem; background:#21262d; padding:0.2rem 0.8rem; border-radius:40px; color:#b1bac4;">
-                    <i class="fas fa-adjust"></i> 自动 · 暗色 · 亮色
-                </span>
-            </div>
-            <div style="margin-top:0.5rem; font-size:0.7rem; background:#161b22; padding:0.4rem 0.8rem; border-radius:16px; color:#8b949e; word-break:break-all;">
-                <i class="fas fa-image"></i> https://ghfind.com/api/card/mini/kdjcpm?lang=zh
-            </div>
-        </div>
-
-        <!-- footer -->
-        <div class="footer-note">
-            <span><i class="fas fa-flask"></i> ghfind · GitHub 开发者含金量</span>
-            <span><a href="#"><i class="fas fa-scroll"></i> 评分方法</a> · <a href="#"><i class="fas fa-info-circle"></i> 关于</a> · <a href="#"><i class="fas fa-lock"></i> 隐私</a></span>
-            <span>⚡ Powered by LobeHub</span>
         </div>
     </div>
+
+    <!-- 位置 / 对线 / 关注 -->
+    <div class="card">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">我的位置</div>
+                <div class="value">#5154 <span style="font-size: 0.9rem; color: #7a7a90;">/ 共 6411 人</span></div>
+                <div class="sub">击败了 19.5% 的开发者</div>
+                <div style="margin-top: 0.3rem; font-size: 0.85rem; color: #d4d4e8;">距「NPC」还差 16.50 分</div>
+            </div>
+            <div class="info-item" style="display: flex; flex-direction: column; gap: 0.6rem; justify-content: center;">
+                <a href="#" class="action-btn" style="justify-content: center; width: 100%;"><i class="fas fa-swords"></i> 拉人来跟我对线</a>
+                <button class="action-btn action-btn-outline" style="justify-content: center; width: 100%;"><i class="far fa-eye"></i> 关注 TA</button>
+            </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; justify-content: center;">
+            <span class="action-btn action-btn-outline" style="font-size: 0.75rem; padding: 0.3rem 1.2rem;"><i class="fas fa-camera"></i> 保存炫耀图</span>
+            <span class="action-btn action-btn-outline" style="font-size: 0.75rem; padding: 0.3rem 1.2rem;"><i class="fas fa-share-alt"></i> 分享</span>
+        </div>
+    </div>
+
+    <!-- 维度评分 -->
+    <div class="card">
+        <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1.2rem;">维度评分</h3>
+        <div class="dimension-list">
+            <div class="dimension-row">
+                <span class="dimension-name">账号成熟度</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 17%;"></div></div>
+                <span class="dimension-score">1.7 <span class="dimension-total">/10</span></span>
+            </div>
+            <div class="dimension-row">
+                <span class="dimension-name">原创项目质量</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 41%;"></div></div>
+                <span class="dimension-score">7.4 <span class="dimension-total">/18</span></span>
+            </div>
+            <div class="dimension-row">
+                <span class="dimension-name">贡献质量</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 4%;"></div></div>
+                <span class="dimension-score">1.2 <span class="dimension-total">/27</span></span>
+            </div>
+            <div class="dimension-row">
+                <span class="dimension-name">生态/维护影响力</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 0%;"></div></div>
+                <span class="dimension-score">0.0 <span class="dimension-total">/20</span></span>
+            </div>
+            <div class="dimension-row">
+                <span class="dimension-name">社区影响力</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 12%;"></div></div>
+                <span class="dimension-score">1.0 <span class="dimension-total">/8</span></span>
+            </div>
+            <div class="dimension-row">
+                <span class="dimension-name">活跃真实性</span>
+                <div class="dimension-bar-bg"><div class="dimension-bar-fill" style="width: 71%;"></div></div>
+                <span class="dimension-score">12.2 <span class="dimension-total">/17</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 代表作 -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">🛠 代表作</h3>
+            <span class="text-muted text-sm">按实质贡献优先、高星影响辅助排序</span>
+        </div>
+        <div class="repo-grid">
+            <div class="repo-card"><span class="repo-name">KDJCPM/https-Droidspaces...</span><span class="repo-stars">⭐ 5</span><span class="repo-lang">Dockerfile</span></div>
+            <div class="repo-card"><span class="repo-name">KDJCPM/-----</span><span class="repo-stars">⭐ 0</span><span class="repo-lang">Dart</span></div>
+            <div class="repo-card"><span class="repo-name">KDJCPM/Droidspaces-OSS</span><span class="repo-stars">⭐ 0</span><span class="repo-lang">Kotlin</span></div>
+            <div class="repo-card"><span class="repo-name">KDJCPM/Droidspaces-rootfs-...</span><span class="repo-stars">⭐ 0</span><span class="repo-lang">Dockerfile</span></div>
+            <div class="repo-card"><span class="repo-name">KDJCPM/GPT-SoViTs-android</span><span class="repo-stars">⭐ 0</span><span class="repo-lang">Python</span></div>
+            <div class="repo-card"><span class="repo-name">KDJCPM/liveboot</span><span class="repo-stars">⭐ 0</span><span class="repo-lang">Java</span></div>
+        </div>
+    </div>
+
+    <!-- 相似开发者 -->
+    <div class="card">
+        <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.8rem;">🧬 和 TA 最像的开发者</h3>
+        <div class="similar-grid">
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/240474405?v=4" alt="r05en1cu"><div class="similar-info"><div class="similar-username">@r05en1cu</div></div><span class="similar-score">💩 29.90</span></div>
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/225518289?v=4" alt="yrc-better"><div class="similar-info"><div class="similar-username">@yrc-better</div><div class="similar-tag">#复旦实习僧</div></div><span class="similar-score">💩 30.30</span></div>
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/232799985?v=4" alt="worable233"><div class="similar-info"><div class="similar-username">@worable233</div><div class="similar-tag">#刷星萌新</div></div><span class="similar-score">💩 30.90</span></div>
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/264400854?v=4" alt="feiniao87968492"><div class="similar-info"><div class="similar-username">@feiniao87968492</div><div class="similar-tag">#半岁萌新</div></div><span class="similar-score">💩 31.40</span></div>
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/231435898?v=4" alt="bubsee"><div class="similar-info"><div class="similar-username">@bubsee</div><div class="similar-tag">#pyc整活王</div></div><span class="similar-score">💩 31.10</span></div>
+            <div class="similar-card"><img src="https://avatars.githubusercontent.com/u/233420915?v=4" alt="mistn"><div class="similar-info"><div class="similar-username">@mistn</div><div class="similar-tag">#开源装修队</div></div><span class="similar-score">💩 31.50</span></div>
+        </div>
+    </div>
+
+    <!-- 技术栈 -->
+    <div class="card">
+        <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;">🧬 技术栈 & 领域</h3>
+        <div style="font-size: 0.85rem; color: #a0a0b5; margin-bottom: 0.6rem;">主要语言</div>
+        <div class="lang-bar"><span class="lang-name">Java</span><div class="lang-track"><div class="lang-fill" style="width: 18%;"></div></div><span class="lang-percent">18%</span></div>
+        <div class="lang-bar"><span class="lang-name">Kotlin</span><div class="lang-track"><div class="lang-fill" style="width: 14%;"></div></div><span class="lang-percent">14%</span></div>
+        <div class="lang-bar"><span class="lang-name">Shell</span><div class="lang-track"><div class="lang-fill" style="width: 13%;"></div></div><span class="lang-percent">13%</span></div>
+        <div class="lang-bar"><span class="lang-name">Dockerfile</span><div class="lang-track"><div class="lang-fill" style="width: 12%;"></div></div><span class="lang-percent">12%</span></div>
+        <div class="lang-bar"><span class="lang-name">JavaScript</span><div class="lang-track"><div class="lang-fill" style="width: 9%;"></div></div><span class="lang-percent">9%</span></div>
+        <div class="lang-bar"><span class="lang-name">C</span><div class="lang-track"><div class="lang-fill" style="width: 9%;"></div></div><span class="lang-percent">9%</span></div>
+    </div>
+
+    <!-- 毒舌点评 -->
+    <div class="card">
+        <h3 style="font-size: 1.2rem; font-weight: 600; color: #fb923c;">🔥 毒舌点评全文</h3>
+        <div class="roast-box">
+            <p>🔥 注册不到一年粉丝为0、总PR为0、总星仅5，把GitHub当私人代码备份网盘还硬凹开源人设，拉完了的含金量连Hello World都不如。</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.2); border-radius: 20px; padding: 1rem 1.4rem; border: 1px solid rgba(255,255,255,0.03);">
+            <p><strong>KDJCPM — 23.50/100 · 拉完了 (低价值 · 疑似刷量/AI 机器人)</strong></p>
+            <p style="color: #c8c8dc;"><strong>一句话结论:</strong> 注册不到一年，无任何对外贡献、总PR为0、总星仅5，开源贡献几乎为零，账号价值基本等于空气。</p>
+            <div style="overflow-x: auto; margin: 0.8rem 0;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead><tr style="border-bottom: 1px solid rgba(255,255,255,0.08);"><th style="text-align: left; padding: 0.4rem 0;">维度</th><th style="text-align: left; padding: 0.4rem 0.8rem;">得分</th><th style="text-align: left; padding: 0.4rem 0;">说明</th></tr></thead>
+                    <tbody>
+                        <tr><td style="padding: 0.3rem 0;">账号成熟度</td><td style="padding: 0.3rem 0.8rem;">1.7/10</td><td style="padding: 0.3rem 0;">注册仅0.61年，贡献跨1个自然年，账号刚学会写Hello World就出来混开源圈</td></tr>
+                        <tr><td style="padding: 0.3rem 0;">原创项目质量</td><td style="padding: 0.3rem 0.8rem;">7.4/18</td><td style="padding: 0.3rem 0;">24个自有仓库总星仅5，最高星仓库KDJCPM/https-Droidspaces-rootfs-KDE-builder_2也只有5星，全是自娱自乐的小打小闹</td></tr>
+                        <tr><td style="padding: 0.3rem 0;">贡献质量</td><td style="padding: 0.3rem 0.8rem;">1.2/27</td><td style="padding: 0.3rem 0;">总PR为0，合并PR为0，没有任何对外代码贡献，连给别人的项目改个错别字的活都没干过</td></tr>
+                        <tr><td style="padding: 0.3rem 0;">生态/维护影响力</td><td style="padding: 0.3rem 0.8rem;">0/20</td><td style="padding: 0.3rem 0;">无任何向高星仓库的PR或commit贡献，生态影响力为0，完全是开源世界的局外人</td></tr>
+                        <tr><td style="padding: 0.3rem 0;">社区影响力</td><td style="padding: 0.3rem 0.8rem;">1/8</td><td style="padding: 0.3rem 0;">粉丝0，关注1，在开源社区里完全是查无此人的状态</td></tr>
+                        <tr><td style="padding: 0.3rem 0;">活跃真实性</td><td style="padding: 0.3rem 0.8rem;">12.2/17</td><td style="padding: 0.3rem 0;">近一年贡献184次，但全是往自己的空仓库里堆提交，没有对外交流</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p><strong>风险标记</strong> 无</p>
+            <p><strong>建议</strong></p>
+            <ol style="padding-left: 1.4rem; color: #c0c0d4;">
+                <li>别再把GitHub当私人代码备份盘了，试着给别人的项目提个有实质内容的PR，哪怕改个文档也行，先迈出对外贡献的第一步。</li>
+                <li>少搞点开源人设包装，先把自家项目的可用性提上去，别做一堆零星仓库连个像样的说明都没有，先把一个项目做精再说。</li>
+                <li>想涨星就好好做项目，靠刷存在感、堆空仓库是没用的，开源社区不吃这套。</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- 测测自己 -->
+    <div class="text-center" style="margin: 1.2rem 0 0.6rem;">
+        <a href="#" class="action-btn" style="padding: 0.7rem 2.8rem;"><i class="fas fa-fire"></i> 测测你自己的 GitHub 含金量 →</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-meta">
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><img src="/lobehub.png" style="height: 18px; border-radius: 4px;" alt="LobeHub"> Powered by LobeHub</span>
+        <span style="display: block; margin-top: 4px;">ghfind · GitHub 开发者含金量与可信度评分</span>
+    </div>
+
+</div>
 </body>
 </html>
