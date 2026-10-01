@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>双图层头像合成器 · 中间裁剪</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 820px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 卡片通用样式 */
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      padding: 20px 22px;
+      transition: all 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: #1e293b;
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .upload-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 28px 16px;
+      background: #f8fafc;
+      transition: border 0.2s, background 0.2s;
+      cursor: pointer;
+      text-align: center;
+      position: relative;
+    }
+
+    .upload-area:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 6px;
+      color: #64748b;
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .upload-hint {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #3b82f6;
+      word-break: break-all;
+      background: #eef2ff;
+      padding: 4px 12px;
+      border-radius: 40px;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    /* 预览小图 (上传后显示) */
+    .preview-thumb {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .preview-thumb img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      background: #f1f5f9;
+    }
+
+    /* 按钮通用 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: 0.15s;
+      background: white;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      border: none;
+      box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: scale(1.01);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+      border: none;
+      box-shadow: 0 8px 18px -6px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: scale(1.01);
+    }
+
+    .btn-success:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      filter: grayscale(0.4);
+    }
+
+    .action-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 6px;
+    }
+
+    .action-wrapper .btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px 22px;
+      font-size: 1.1rem;
+      letter-spacing: 0.3px;
+    }
+
+    /* 结果卡片 */
+    .result-card {
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.15);
+      padding: 22px 20px 20px;
+      border: 1px solid #ffffff80;
+      animation: fadeSlideUp 0.3s ease;
+    }
+
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 18px;
+      color: #0f172a;
+    }
+
+    .result-preview {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .result-preview img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 28px;
+      box-shadow: 0 12px 25px -8px rgba(0, 0, 0, 0.2);
+      background: #f1f5f9;
+      border: 3px solid white;
+      transition: transform 0.2s;
+    }
+
+    .result-preview img:hover {
+      transform: scale(1.02);
+    }
+
+    .download-area {
+      display: flex;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .download-area .btn {
+      width: 100%;
+      max-width: 280px;
+      padding: 16px 20px;
+      font-size: 1.05rem;
+      background: #0f172a;
+      color: white;
+      border: none;
+      box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.4);
+    }
+
+    .download-area .btn:hover {
+      background: #1e293b;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .mt-2 {
+      margin-top: 10px;
+    }
+
+    .text-muted {
+      color: #64748b;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* 占位间距 */
+    .gap-2 {
+      height: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 卡片1：上传底层图 -->
+    <div class="card">
+      <div class="card-header">
+        <span>🖼️</span> 底层图片
+      </div>
+      <div class="upload-area" id="baseUploadArea">
+        <input type="file" id="baseInput" accept="image/*">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">点击或拖拽上传底层图</div>
+        <div class="upload-hint">支持 JPG、PNG、WEBP</div>
+      </div>
+      <div class="preview-thumb hidden" id="basePreviewContainer">
+        <img id="basePreviewImg" src="#" alt="底层预览">
+      </div>
+      <div class="file-name hidden" id="baseFileName"></div>
+    </div>
+
+    <!-- 卡片2：上传最上层图 (默认已设置) -->
+    <div class="card">
+      <div class="card-header">
+        <span>✨</span> 顶层图片 (覆盖层)
+      </div>
+      <div class="upload-area" id="overlayUploadArea">
+        <input type="file" id="overlayInput" accept="image/*">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">点击或拖拽上传顶层图</div>
+        <div class="upload-hint">将覆盖在底层图上方 (默认已加载 GQJ.PNG)</div>
+      </div>
+      <div class="preview-thumb" id="overlayPreviewContainer">
+        <img id="overlayPreviewImg" src="/GQJ/GQJ.PNG" alt="顶层预览">
+      </div>
+      <div class="file-name" id="overlayFileName">/GQJ/GQJ.PNG</div>
+    </div>
+
+    <!-- 开始处理按钮 -->
+    <div class="action-wrapper">
+      <button class="btn btn-primary" id="processBtn">
+        ⚡ 开始处理
+      </button>
+    </div>
+
+    <!-- 结果卡片 (默认隐藏) -->
+    <div class="result-card hidden" id="resultCard">
+      <div class="result-title">
+        <span>🎉</span> 合成结果
+      </div>
+      <div class="result-preview">
+        <img id="resultImage" src="#" alt="合成头像">
+      </div>
+      <div class="download-area">
+        <button class="btn" id="downloadBtn">
+          ⬇️ 下载图片 (PNG)
+        </button>
+      </div>
+      <div class="text-muted mt-2">
+        自动中间裁剪为正方形，尺寸取决于底层图最短边
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ----- DOM 元素 -----
+      const baseInput = document.getElementById('baseInput');
+      const overlayInput = document.getElementById('overlayInput');
+      
+      const basePreviewImg = document.getElementById('basePreviewImg');
+      const basePreviewContainer = document.getElementById('basePreviewContainer');
+      const baseFileName = document.getElementById('baseFileName');
+      
+      const overlayPreviewImg = document.getElementById('overlayPreviewImg');
+      const overlayPreviewContainer = document.getElementById('overlayPreviewContainer');
+      const overlayFileName = document.getElementById('overlayFileName');
+      
+      const processBtn = document.getElementById('processBtn');
+      const resultCard = document.getElementById('resultCard');
+      const resultImage = document.getElementById('resultImage');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      // ----- 状态存储 -----
+      let baseFile = null;        // 底层 File 对象
+      let overlayFile = null;     // 顶层 File 对象 (默认为 /GQJ/GQJ.PNG 的特殊标记)
+      
+      // 存储原始图片 Image 对象 (用于合成，避免重复加载)
+      let baseImage = null;
+      let overlayImage = null;
+
+      // 用于预览的 object URL (用于释放)
+      let baseObjectURL = null;
+      // overlay 默认使用路径，不需要 objectURL，但上传后需要管理
+      let overlayObjectURL = null;
+
+      // 合成后的 DataURL (用于下载)
+      let composedDataURL = null;
+
+      // ----- 工具函数 -----
+      // 释放旧的 object URL，避免内存泄漏
+      function revokeObjectURL(url) {
+        if (url && url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      // 清理底层相关资源
+      function cleanupBase() {
+        if (baseObjectURL) {
+          revokeObjectURL(baseObjectURL);
+          baseObjectURL = null;
+        }
+        if (baseImage) {
+          baseImage = null;
+        }
+        baseFile = null;
+      }
+
+      // 清理顶层相关资源 (注意默认路径不是blob，但也要重置)
+      function cleanupOverlay() {
+        if (overlayObjectURL) {
+          revokeObjectURL(overlayObjectURL);
+          overlayObjectURL = null;
+        }
+        if (overlayImage) {
+          overlayImage = null;
+        }
+        overlayFile = null;
+        // 重置顶层预览为默认的 GQJ 图片
+        overlayPreviewImg.src = '/GQJ/GQJ.PNG';
+        overlayFileName.textContent = '/GQJ/GQJ.PNG';
+        overlayPreviewContainer.classList.remove('hidden');
+        overlayFileName.classList.remove('hidden');
+      }
+
+      // 重置结果卡片 (隐藏并清除内容)
+      function resetResult() {
+        resultCard.classList.add('hidden');
+        resultImage.src = '#';
+        composedDataURL = null;
+      }
+
+      // 更新按钮状态：底层文件存在且顶层图片已加载(或者默认顶层已就绪)才启用
+      // 逻辑：底层必须存在，顶层可以来自默认图片或上传文件。我们用overlayImage是否存在来判断。
+      function updateProcessButton() {
+        processBtn.disabled = !(baseImage && overlayImage);
+      }
+
+      // ----- 处理文件选择 -----
+      // 通用图片加载函数，返回 Promise<Image>
+      function loadImageFromFile(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = (err) => reject(new Error('图片加载失败'));
+            img.src = e.target.result;
+          };
+          reader.onerror = () => reject(new Error('文件读取失败'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // 从URL加载图片 (用于默认顶层图)
+      function loadImageFromURL(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'Anonymous'; // 避免canvas污染，若同源则无影响
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error('图片加载失败: ' + url));
+          img.src = url;
+        });
+      }
+
+      // 底层图片选择回调
+      baseInput.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // 清理之前底层资源
+        cleanupBase();
+        resetResult();
+
+        // 更新UI
+        baseFile = file;
+        baseFileName.textContent = file.name;
+        baseFileName.classList.remove('hidden');
+        
+        // 预览显示 (用 object URL 提高性能)
+        if (baseObjectURL) revokeObjectURL(baseObjectURL);
+        baseObjectURL = URL.createObjectURL(file);
+        basePreviewImg.src = baseObjectURL;
+        basePreviewContainer.classList.remove('hidden');
+
+        // 预加载图片对象 (用于合成)
+        try {
+          baseImage = await loadImageFromFile(file);
+        } catch (err) {
+          console.error('底层图片加载失败:', err);
+          alert('底层图片解析失败，请尝试其他图片');
+          cleanupBase();
+          baseFileName.classList.add('hidden');
+          basePreviewContainer.classList.add('hidden');
+          updateProcessButton();
+          return;
+        }
+
+        updateProcessButton();
+      });
+
+      // 顶层图片选择回调
+      overlayInput.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // 清理旧的顶层资源 (但保留默认预览待会覆盖)
+        // 注意：cleanupOverlay 会把 overlayImage 置空，overlayFile置空，并重置UI为默认路径
+        // 但我们现在要替换为用户上传的图片，所以先清理再设置
+        cleanupOverlay();
+        resetResult();
+
+        overlayFile = file;
+        overlayFileName.textContent = file.name;
+        overlayFileName.classList.remove('hidden');
+
+        // 创建新的预览
+        if (overlayObjectURL) revokeObjectURL(overlayObjectURL);
+        overlayObjectURL = URL.createObjectURL(file);
+        overlayPreviewImg.src = overlayObjectURL;
+        overlayPreviewContainer.classList.remove('hidden');
+
+        try {
+          overlayImage = await loadImageFromFile(file);
+        } catch (err) {
+          console.error('顶层图片加载失败:', err);
+          alert('顶层图片解析失败，请尝试其他图片');
+          // 恢复默认顶层
+          cleanupOverlay();
+          // 重新加载默认图片
+          await loadDefaultOverlay();
+          updateProcessButton();
+          return;
+        }
+
+        updateProcessButton();
+      });
+
+      // 加载默认顶层图 /GQJ/GQJ.PNG
+      async function loadDefaultOverlay() {
+        try {
+          overlayImage = await loadImageFromURL('/GQJ/GQJ.PNG');
+          // 设置全局 overlayFile 为一个标记，表示是默认图片 (但不用于合成逻辑)
+          overlayFile = { isDefault: true, name: '/GQJ/GQJ.PNG' };
+          // 确保UI显示默认路径和预览
+          overlayPreviewImg.src = '/GQJ/GQJ.PNG';
+          overlayFileName.textContent = '/GQJ/GQJ.PNG';
+          overlayPreviewContainer.classList.remove('hidden');
+          overlayFileName.classList.remove('hidden');
+        } catch (err) {
+          console.error('默认顶层图加载失败:', err);
+          // 如果默认图片加载失败，保持界面提示但 overlayImage 为 null
+          overlayImage = null;
+          overlayFile = null;
+          // 显示错误提示（优雅降级）
+          overlayPreviewImg.src = '#';
+          overlayPreviewContainer.classList.add('hidden');
+          overlayFileName.textContent = '默认图片加载失败';
+          overlayFileName.classList.remove('hidden');
+        }
+        updateProcessButton();
+      }
+
+      // ----- 核心：中间裁剪为正方形 + 合成 -----
+      function processImages() {
+        if (!baseImage || !overlayImage) {
+          alert('请先上传底层图片和顶层图片（默认顶层图可能未加载成功）');
+          return;
+        }
+
+        // 获取底层图的宽高
+        const baseW = baseImage.naturalWidth;
+        const baseH = baseImage.naturalHeight;
+        
+        // 计算中间裁剪的正方形边长（取宽高较小值）
+        const size = Math.min(baseW, baseH);
+        
+        // 计算底层裁剪区域 (居中)
+        const cropX = (baseW - size) / 2;
+        const cropY = (baseH - size) / 2;
+
+        // 创建 canvas 绘制最终合成图
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // 1. 绘制底层图：从 (cropX, cropY) 取 size x size 区域，绘制到 (0,0)
+        ctx.drawImage(
+          baseImage,
+          cropX, cropY, size, size,   // 源裁剪区域
+          0, 0, size, size            // 目标绘制区域
+        );
+
+        // 2. 绘制顶层图：同样中间裁剪为正方形，并完全覆盖整个 canvas
+        const overlayW = overlayImage.naturalWidth;
+        const overlayH = overlayImage.naturalHeight;
+        const overlaySize = Math.min(overlayW, overlayH);
+        const overlayCropX = (overlayW - overlaySize) / 2;
+        const overlayCropY = (overlayH - overlaySize) / 2;
+
+        // 将顶层图裁剪区域拉伸绘制到整个 canvas (size x size)
+        // 注：如果需要保持顶层图比例，但要求是覆盖，所以拉伸填满
+        ctx.drawImage(
+          overlayImage,
+          overlayCropX, overlayCropY, overlaySize, overlaySize,  // 源裁剪区域
+          0, 0, size, size                                        // 目标绘制区域（铺满）
+        );
+
+        // 生成 DataURL (PNG)
+        composedDataURL = canvas.toDataURL('image/png');
+
+        // 更新预览卡片
+        resultImage.src = composedDataURL;
+        resultCard.classList.remove('hidden');
+
+        // 平滑滚动到结果卡片
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // 处理按钮点击
+      processBtn.addEventListener('click', processImages);
+
+      // ----- 下载功能 -----
+      downloadBtn.addEventListener('click', () => {
+        if (!composedDataURL) {
+          alert('还没有合成结果，请先处理图片');
+          return;
+        }
+        // 创建下载链接
+        const link = document.createElement('a');
+        link.href = composedDataURL;
+        link.download = `头像合成_${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // 页面卸载时释放 object URL
+      window.addEventListener('beforeunload', () => {
+        if (baseObjectURL) revokeObjectURL(baseObjectURL);
+        if (overlayObjectURL) revokeObjectURL(overlayObjectURL);
+      });
+
+      // ----- 初始化：加载默认顶层图 -----
+      (async function init() {
+        // 显示顶层默认预览（HTML中已写，但确保图片加载）
+        // 但为了防止图片路径错误，先尝试加载图片到 overlayImage
+        await loadDefaultOverlay();
+        // 注意：loadDefaultOverlay 中会更新按钮状态
+        // 底层还没上传，按钮应该是禁用的
+        // 按钮状态在 loadDefaultOverlay 里已经通过 updateProcessButton 更新 (baseImage为null)
+        // 再次确保
+        updateProcessButton();
+      })();
+
+      // 注意：因为默认顶层图路径可能不存在，但根据需求我们设置了这个路径，如果加载失败会给出提示
+      // 另外，顶层默认预览容器和文件名容器在HTML中没有hidden类，所以显示默认值，与loadDefaultOverlay协同
+    })();
+  </script>
+</body>
+</html>
