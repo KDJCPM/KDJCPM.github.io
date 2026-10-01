@@ -308,7 +308,7 @@
       <div class="file-name hidden" id="baseFileName"></div>
     </div>
 
-    <!-- 卡片2：上传最上层图 (默认已设置) -->
+    <!-- 卡片2：上传最上层图 -->
     <div class="card">
       <div class="card-header">
         <span>✨</span> 顶层图片 (覆盖层)
@@ -317,17 +317,17 @@
         <input type="file" id="overlayInput" accept="image/*">
         <div class="upload-icon">📁</div>
         <div class="upload-text">点击或拖拽上传顶层图</div>
-        <div class="upload-hint">将覆盖在底层图上方 (默认已加载 GQJ.PNG)</div>
+        <div class="upload-hint">将覆盖在底层图上方</div>
       </div>
-      <div class="preview-thumb" id="overlayPreviewContainer">
-        <img id="overlayPreviewImg" src="/GQJ/GQJ.PNG" alt="顶层预览">
+      <div class="preview-thumb hidden" id="overlayPreviewContainer">
+        <img id="overlayPreviewImg" src="#" alt="顶层预览">
       </div>
-      <div class="file-name" id="overlayFileName">/GQJ/GQJ.PNG</div>
+      <div class="file-name hidden" id="overlayFileName"></div>
     </div>
 
     <!-- 开始处理按钮 -->
     <div class="action-wrapper">
-      <button class="btn btn-primary" id="processBtn">
+      <button class="btn btn-primary" id="processBtn" disabled>
         ⚡ 开始处理
       </button>
     </div>
@@ -372,7 +372,7 @@
 
       // ----- 状态存储 -----
       let baseFile = null;        // 底层 File 对象
-      let overlayFile = null;     // 顶层 File 对象 (默认为 /GQJ/GQJ.PNG 的特殊标记)
+      let overlayFile = null;     // 顶层 File 对象
       
       // 存储原始图片 Image 对象 (用于合成，避免重复加载)
       let baseImage = null;
@@ -380,7 +380,6 @@
 
       // 用于预览的 object URL (用于释放)
       let baseObjectURL = null;
-      // overlay 默认使用路径，不需要 objectURL，但上传后需要管理
       let overlayObjectURL = null;
 
       // 合成后的 DataURL (用于下载)
@@ -401,12 +400,13 @@
           baseObjectURL = null;
         }
         if (baseImage) {
+          // 图片对象无需显式清理，但解除引用
           baseImage = null;
         }
         baseFile = null;
       }
 
-      // 清理顶层相关资源 (注意默认路径不是blob，但也要重置)
+      // 清理顶层相关资源
       function cleanupOverlay() {
         if (overlayObjectURL) {
           revokeObjectURL(overlayObjectURL);
@@ -416,11 +416,6 @@
           overlayImage = null;
         }
         overlayFile = null;
-        // 重置顶层预览为默认的 GQJ 图片
-        overlayPreviewImg.src = '/GQJ/GQJ.PNG';
-        overlayFileName.textContent = '/GQJ/GQJ.PNG';
-        overlayPreviewContainer.classList.remove('hidden');
-        overlayFileName.classList.remove('hidden');
       }
 
       // 重置结果卡片 (隐藏并清除内容)
@@ -428,12 +423,12 @@
         resultCard.classList.add('hidden');
         resultImage.src = '#';
         composedDataURL = null;
+        // 不撤销之前可能存在的dataURL，因为不再引用
       }
 
-      // 更新按钮状态：底层文件存在且顶层图片已加载(或者默认顶层已就绪)才启用
-      // 逻辑：底层必须存在，顶层可以来自默认图片或上传文件。我们用overlayImage是否存在来判断。
+      // 更新按钮状态：两个文件都存在才启用
       function updateProcessButton() {
-        processBtn.disabled = !(baseImage && overlayImage);
+        processBtn.disabled = !(baseFile && overlayFile);
       }
 
       // ----- 处理文件选择 -----
@@ -452,25 +447,103 @@
         });
       }
 
-      // 从URL加载图片 (用于默认顶层图)
+      // 从 URL 加载图片 (用于默认图片)
       function loadImageFromURL(url) {
         return new Promise((resolve, reject) => {
           const img = new Image();
-          img.crossOrigin = 'Anonymous'; // 避免canvas污染，若同源则无影响
+          img.crossOrigin = 'Anonymous'; // 避免跨域问题（如果适用）
           img.onload = () => resolve(img);
-          img.onerror = () => reject(new Error('图片加载失败: ' + url));
+          img.onerror = () => reject(new Error(`图片加载失败: ${url}`));
           img.src = url;
         });
       }
 
-      // 底层图片选择回调
+      // 将 URL 图片设置到底层 (默认或后续)
+      async function setBaseFromURL(url, fileName = 'bottom.webp') {
+        try {
+          // 清理旧数据
+          cleanupBase();
+          resetResult();
+
+          // 加载图片
+          const img = await loadImageFromURL(url);
+          
+          // 存储图片对象
+          baseImage = img;
+          
+          // 模拟文件对象 (仅为状态，实际上我们不需要真实的 File，但为了按钮逻辑和显示)
+          // 这里用一个占位，不能直接 new File，但我们可以使用 Blob? 但为了状态 baseFile 不为空，我们使用一个对象？ 
+          // 但后续的 processImages 需要 baseImage，不依赖 baseFile 的真实内容。我们只需要 baseFile 是一个真值。
+          // 使用 fetch 获取 blob 再生成文件？更精确，但可能增加复杂度。为了简单，我们创建一个 blob 来代表文件。
+          // 但我们要显示文件名，并使用对象URL显示预览。
+          
+          // 我们使用 fetch 获取图片的 blob，然后创建 File 对象
+          const response = await fetch(url);
+          const blob = await response.blob();
+          const file = new File([blob], fileName, { type: blob.type || 'image/webp' });
+          
+          // 更新状态
+          baseFile = file;
+          
+          // 更新 UI 显示
+          baseFileName.textContent = file.name;
+          baseFileName.classList.remove('hidden');
+          
+          if (baseObjectURL) revokeObjectURL(baseObjectURL);
+          baseObjectURL = URL.createObjectURL(blob);
+          basePreviewImg.src = baseObjectURL;
+          basePreviewContainer.classList.remove('hidden');
+          
+          updateProcessButton();
+        } catch (err) {
+          console.error('设置默认底层图片失败:', err);
+          // 不阻塞，只是无法使用默认图
+          baseFileName.textContent = '默认图加载失败';
+          baseFileName.classList.remove('hidden');
+          basePreviewContainer.classList.add('hidden');
+        }
+      }
+
+      // 将 URL 图片设置到顶层
+      async function setOverlayFromURL(url, fileName = 'top.webp') {
+        try {
+          cleanupOverlay();
+          resetResult();
+
+          const img = await loadImageFromURL(url);
+          overlayImage = img;
+
+          const response = await fetch(url);
+          const blob = await response.blob();
+          const file = new File([blob], fileName, { type: blob.type || 'image/webp' });
+          
+          overlayFile = file;
+          
+          overlayFileName.textContent = file.name;
+          overlayFileName.classList.remove('hidden');
+          
+          if (overlayObjectURL) revokeObjectURL(overlayObjectURL);
+          overlayObjectURL = URL.createObjectURL(blob);
+          overlayPreviewImg.src = overlayObjectURL;
+          overlayPreviewContainer.classList.remove('hidden');
+          
+          updateProcessButton();
+        } catch (err) {
+          console.error('设置默认顶层图片失败:', err);
+          overlayFileName.textContent = '默认图加载失败';
+          overlayFileName.classList.remove('hidden');
+          overlayPreviewContainer.classList.add('hidden');
+        }
+      }
+
+      // 底层图片选择回调 (用户手动上传)
       baseInput.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         // 清理之前底层资源
         cleanupBase();
-        resetResult();
+        resetResult(); // 新上传后之前结果无效
 
         // 更新UI
         baseFile = file;
@@ -499,14 +572,11 @@
         updateProcessButton();
       });
 
-      // 顶层图片选择回调
+      // 顶层图片选择回调 (用户手动上传)
       overlayInput.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // 清理旧的顶层资源 (但保留默认预览待会覆盖)
-        // 注意：cleanupOverlay 会把 overlayImage 置空，overlayFile置空，并重置UI为默认路径
-        // 但我们现在要替换为用户上传的图片，所以先清理再设置
         cleanupOverlay();
         resetResult();
 
@@ -514,7 +584,6 @@
         overlayFileName.textContent = file.name;
         overlayFileName.classList.remove('hidden');
 
-        // 创建新的预览
         if (overlayObjectURL) revokeObjectURL(overlayObjectURL);
         overlayObjectURL = URL.createObjectURL(file);
         overlayPreviewImg.src = overlayObjectURL;
@@ -525,10 +594,9 @@
         } catch (err) {
           console.error('顶层图片加载失败:', err);
           alert('顶层图片解析失败，请尝试其他图片');
-          // 恢复默认顶层
           cleanupOverlay();
-          // 重新加载默认图片
-          await loadDefaultOverlay();
+          overlayFileName.classList.add('hidden');
+          overlayPreviewContainer.classList.add('hidden');
           updateProcessButton();
           return;
         }
@@ -536,35 +604,10 @@
         updateProcessButton();
       });
 
-      // 加载默认顶层图 /GQJ/GQJ.PNG
-      async function loadDefaultOverlay() {
-        try {
-          overlayImage = await loadImageFromURL('/GQJ/GQJ.PNG');
-          // 设置全局 overlayFile 为一个标记，表示是默认图片 (但不用于合成逻辑)
-          overlayFile = { isDefault: true, name: '/GQJ/GQJ.PNG' };
-          // 确保UI显示默认路径和预览
-          overlayPreviewImg.src = '/GQJ/GQJ.PNG';
-          overlayFileName.textContent = '/GQJ/GQJ.PNG';
-          overlayPreviewContainer.classList.remove('hidden');
-          overlayFileName.classList.remove('hidden');
-        } catch (err) {
-          console.error('默认顶层图加载失败:', err);
-          // 如果默认图片加载失败，保持界面提示但 overlayImage 为 null
-          overlayImage = null;
-          overlayFile = null;
-          // 显示错误提示（优雅降级）
-          overlayPreviewImg.src = '#';
-          overlayPreviewContainer.classList.add('hidden');
-          overlayFileName.textContent = '默认图片加载失败';
-          overlayFileName.classList.remove('hidden');
-        }
-        updateProcessButton();
-      }
-
       // ----- 核心：中间裁剪为正方形 + 合成 -----
       function processImages() {
         if (!baseImage || !overlayImage) {
-          alert('请先上传底层图片和顶层图片（默认顶层图可能未加载成功）');
+          alert('请先上传底层和顶层图片');
           return;
         }
 
@@ -642,20 +685,27 @@
         if (overlayObjectURL) revokeObjectURL(overlayObjectURL);
       });
 
-      // ----- 初始化：加载默认顶层图 -----
-      (async function init() {
-        // 显示顶层默认预览（HTML中已写，但确保图片加载）
-        // 但为了防止图片路径错误，先尝试加载图片到 overlayImage
-        await loadDefaultOverlay();
-        // 注意：loadDefaultOverlay 中会更新按钮状态
-        // 底层还没上传，按钮应该是禁用的
-        // 按钮状态在 loadDefaultOverlay 里已经通过 updateProcessButton 更新 (baseImage为null)
-        // 再次确保
+      // ----- 初始化：加载默认图片 bottom.webp 和 top.webp -----
+      (async function initDefaults() {
+        // 同时加载，互不阻塞，但需要都完成以启用按钮
+        const loadPromises = [
+          setBaseFromURL('./bottom.webp', 'bottom.webp'),
+          setOverlayFromURL('./top.webp', 'top.webp')
+        ];
+        
+        await Promise.allSettled(loadPromises);
+        // 确保按钮状态正确 (两个都成功才会启用)
         updateProcessButton();
+
+        // 如果两个图片都加载成功，自动合成? 但用户可能想先预览，不自动处理。但为了便利，可以自动合成? 
+        // 根据需求“设置默认底层...最上层图”，不做其他更改，所以保持按钮启用，让用户点击合成。
+        // 但如果两个默认图加载成功，用户点一下即可。
+        // 如果加载失败，按钮保持禁用，但用户依然可以手动上传。
       })();
 
-      // 注意：因为默认顶层图路径可能不存在，但根据需求我们设置了这个路径，如果加载失败会给出提示
-      // 另外，顶层默认预览容器和文件名容器在HTML中没有hidden类，所以显示默认值，与loadDefaultOverlay协同
+      // 初始按钮状态 (若尚未加载完成，确保禁用)
+      updateProcessButton();
+
     })();
   </script>
 </body>
